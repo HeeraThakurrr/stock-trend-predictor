@@ -19,11 +19,19 @@ df['Ma_21'] = df['Close'].rolling(21).mean()
 df['Return'] = df['Close'].pct_change()
 df['Volatility'] = df['Return'].rolling(7).std()
 
+## Target Column created
+df['Target'] = np.where(df['Return'].shift(-1) < 0, 0, 1)
+
 ## Dropped Null Rows
 df = df.dropna()
 
-## Target Column created
-df['Target'] = np.where(df['Return'].shift(-1) < 0, 0, 1)
+if df.empty:
+    st.error("No data found for this ticker. Please check the ticker symbol.")
+    st.stop()
+
+if len(df) < 50:
+    st.error("Not enough data to train the model for this ticker.")
+    st.stop()
 
 # Input and Target Columns
 x = ['Return', 'Ma_7', 'Ma_21', 'Volatility']
